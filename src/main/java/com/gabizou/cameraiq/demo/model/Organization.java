@@ -1,5 +1,7 @@
 package com.gabizou.cameraiq.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
@@ -21,6 +23,7 @@ public class Organization {
     @Column(name = "address", updatable = true, nullable = true)
     private String address;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @OneToMany(cascade = CascadeType.ALL,
             fetch = FetchType.LAZY,
             mappedBy = "organization"

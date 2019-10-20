@@ -3,45 +3,56 @@ package com.gabizou.cameraiq.demo.controllers;
 import com.gabizou.cameraiq.demo.model.Organization;
 import com.gabizou.cameraiq.demo.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.validation.Valid;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/api/v1")
 public class OrganizationController {
 
     final static DateFormat DATE_FORMAT = new SimpleDateFormat("yyy-MM-dd");
-
     @Autowired OrganizationService service;
 
-    @RequestMapping(method = RequestMethod.GET)
-    String home() {
-        return "organization";
+    @GetMapping("/organizations")
+    List<Organization> home() {
+        return service.getAll();
     }
 
-    @RequestMapping(value = "organization", method = RequestMethod.POST, consumes = MediaType.ALL_VALUE)
-    @ResponseStatus(value = HttpStatus.OK)
-    ModelAndView addOrganization(@RequestParam String name, @RequestParam String address) {
-        final ModelAndView mv = new ModelAndView("organization");
-        try {
-            final Organization organization = new Organization();
-            organization.setName(name);
-            organization.setAddress(address);
-            service.addOrganization(organization);
-            mv.addObject("message", "Organization added with name: " + organization.getName());
-        } catch (Exception e) {
-            mv.addObject("message", "Failed to add organization: " + e.getLocalizedMessage());
-        }
-        mv.addObject("organizations", service.list());
-        return mv;
+    @PostMapping("/organizations")
+    public Organization newOrganization(@RequestBody Organization organization) {
+        return service.addNew(organization);
     }
+
+    @GetMapping("/organizations/{id}")
+    public Organization one(@PathVariable long id) {
+        return service.one(id);
+    }
+
+    @PutMapping("/organizations/{id}")
+    public Organization create(@PathVariable Long id, @Valid @RequestBody Organization organization) {
+        return service.modify(id, organization);
+    }
+
+    @PutMapping("/organizations/{id}/addUser/{employeeId}")
+    public Organization addEmployee(@PathVariable("id") Long orgId, @PathVariable("employeeId") Long employeeId) {
+        return service.addEmployee(orgId, employeeId);
+    }
+
+    @DeleteMapping("/organizations/{id}/delUser/{userId}")
+    public Organization removeEmployee(@PathVariable("id") Long orgId, @PathVariable("userId") Long userId) {
+        return service.removeEmployee(orgId, userId);
+    }
+
 }

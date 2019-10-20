@@ -1,10 +1,19 @@
 package com.gabizou.cameraiq.demo.model;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * Represents a standard User object, this has the following properties that
@@ -15,7 +24,7 @@ import java.util.Set;
  *     <li>First name represented by a String</li>
  *     <li>Email name represented by a String</li>
  * </ul>
- *
+ * <p>
  * The following are nullable properties:
  * <ul>
  *     <li>User's Last Name represented as {@code String}</li>
@@ -49,16 +58,13 @@ public class User {
     private String username;
 
     // All users must have a name
-    @NotNull
-    @NotBlank
-    @Column(name = "first_name", updatable = true, nullable = false)
+    @Column(name = "first_name", updatable = true, nullable = true)
     private String firstName;
 
     @Column(name = "last_name", updatable = true, nullable = true)
     private String lastName;
 
     // All Users must have an email
-    @NotNull
     @NotBlank
     @Column(name = "email", updatable = true, nullable = false)
     private String email;
@@ -69,11 +75,22 @@ public class User {
     @Column(name = "phone_number", updatable = true, nullable = true)
     private String phoneNumber;
 
+    @JsonIgnoreProperties("handler")
     @OneToMany(mappedBy = "user")
     private Set<Membership> organizations = new HashSet<>();
 
+    public User() {
+    }
+
+    public User(@NotBlank String username, String firstName, String lastName, @NotBlank String email) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
     public User(String firstName, String lastName, String email, String address,
-                String phoneNumber) {
+        String phoneNumber) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -81,26 +98,57 @@ public class User {
         this.phoneNumber = phoneNumber;
     }
 
+    /**
+     * Gets the user first name.
+     *
+     * @return The user's first name
+     */
     public String getFirstName() {
         return firstName;
     }
 
+    /**
+     * Gets the user last name.
+     *
+     * @return The user's last name
+     */
     public String getLastName() {
         return lastName;
     }
 
+    /**
+     * Gets the user's email, always available.
+     *
+     * @return The user's email
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Gets the user's address.
+     *
+     * @return The user's addresss
+     */
     public String getAddress() {
         return address;
     }
 
+    /**
+     * Gets the user's phone number.
+     *
+     * @return The user's phone number
+     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * Sets the user's organization(s). If nothing is passed in, the
+     * user is removed from all organizations.
+     *
+     * @param alpha The list of organizations
+     */
     public void setOrganizations(Organization... alpha) {
         organizations.clear();
         for (Organization organization : alpha) {
@@ -108,7 +156,36 @@ public class User {
         }
     }
 
+    public void addMembership(Membership membership) {
+        organizations.add(membership);
+    }
+
+    /**
+     * Gets the uesr's username.
+     *
+     * @return The user's username
+     */
     public String getUsername() {
         return this.username;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }
