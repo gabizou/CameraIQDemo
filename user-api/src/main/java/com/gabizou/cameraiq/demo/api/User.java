@@ -1,5 +1,6 @@
 package com.gabizou.cameraiq.demo.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import javax.annotation.concurrent.Immutable;
@@ -11,29 +12,19 @@ import java.util.UUID;
 public final class User {
 
     public final UUID uuid;
-    public final String userId;
-    public final String name;
+    public final String firstName;
+    public final String lastName;
     public final String email;
+    public final String phoneNumber;
+    public final String address;
 
-    public User(final UUID uuid, final String userId, final String name, final String email) {
+    public User(UUID uuid, String firstName, String lastName, String email, String phoneNumber, String address) {
         this.uuid = uuid;
-        this.userId = userId;
-        this.name = name;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
     }
 
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || this.getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(this.userId, user.userId) &&
-                Objects.equals(this.name, user.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.userId, this.name);
-    }
 }

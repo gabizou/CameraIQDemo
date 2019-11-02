@@ -16,18 +16,17 @@ import java.util.UUID;
 public class UserServiceImpl implements UserService {
 
     private final PersistentEntityRegistry registry;
-    private static final Integer DEFAULT_PAGE_SIZE = 10;
     private final UserRepository userRepository;
 
     @Inject
     public UserServiceImpl(PersistentEntityRegistry registry, UserRepository userRepository) {
         this.registry = registry;
         this.userRepository = userRepository;
-        registry.register(PUserEntity.class);
+        registry.register(UserEntity.class);
     }
 
     @Override
-    public ServiceCall<NotUsed, User> user(final UUID id) {
+    public ServiceCall<NotUsed, User> user(String id) {
         return null;
     }
 
@@ -42,8 +41,4 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    @Override
-    public Topic<UserEvent> userEvents() {
-        return null;
-    }
 }

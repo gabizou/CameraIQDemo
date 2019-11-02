@@ -20,7 +20,12 @@ import java.util.UUID;
  */
 public interface UserService extends Service {
 
-    ServiceCall<NotUsed, User> user(UUID id);
+    /**
+     * Gets a single {@link User user} by {@link UUID uuid}.
+     * @param id
+     * @return
+     */
+    ServiceCall<NotUsed, User> user(String id);
 
     /**
      * Creates a single {@link User}.

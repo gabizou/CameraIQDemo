@@ -1,35 +1,27 @@
 ##CameraIQ RESTful API Demo
 
-As a code assessmenet, the demo RESTful API allows for the following:
-- Creating `User`s and `Organization`s
-- Adding `User`s to `Organization`s (represented by an intermediary model called
- `Membership`)
-- Removing `User`s from `Organization`s
-- Some basic transactional management with Hibernate
-- `UserController` and `OrganizationController` are separated from the `User
-`|`OrganizationServices`s.
+A simple webapp created with [Lagom] and [Maven]. Designed with the following:
+
+Objective:
+
+Design and implement a simple application serving a RESTful API to perform operations on 
+Organization as well as Users. Please implement the challenge in any of the Java Web Frameworks.
+We are looking to see how you design and implement your model as well as your application. 
+We expect to be able to trace an endpoint down to the data transfer objects (DTO) that represent
+Organizations and Users. Feel free to provide additional documentation (UML, SQL scripts,
+comments, etc) that may communicate your design choices. We expect your API to support the 
+following operations:
+
+- Create a single `Organization`
+- Create a single `User`
+- Add a `User` to an `Organization`
+- Delete a `User` from an `Organization`
+- Read all `User`s who belong to a specific `Organization` 
+- Read all `Organization`s to which a `User` belongs
 
 
-Run the app with SpringBoot: `gradlew bootRun`
+API documentation can be viewed [here]()
 
-### API
-####`User` Management
-
-Operation | Request | Data | Description
----|---|---|---
-`GET` | `localhost:8080/api/v1/users` | | Gets a list of all current users
-`POST` | `localhost:8080/api/v1/users/addUser` | {User object} | Adds the provided user
-`GET` | `localhost:8080/api/v1/users/{id}` | N/A | Gets the `User` object by it's id
-`PUT` | `localhost:8080/api/v1/users/{id}` | User object | Modifies the existing user by the id to fill in additional information or modify.
-
-####`Organization` Management
-
-Operation | Request | Data | Description
----|---|---|----
-`GET` | `localhost:8080/api/v1/organizations` | | Gets a list of all current organizations including members
-`POST` | `localhost:8080/api/v1/organizations` | {Organization Object} | Adds the organization object provided it's not been added by name
-`GET` | `localhost:8080/api/v1/organizations/{id}` | organization id | Gets the organization by id, listing all members
-`PUT` | `localhost:8080/api/v1/organizations/{id}` | {"id", Organization Object} | Modifies the existing organization by id
-`PUT` | `localhost:8080/api/v1/organizations/{id}/addUser/{userId}` | {"id", "userid"} | Adds the provided User to the provided organization, assuming both are existing
-`DELETE` | `localhost:8080/api/v1/organizations/{id}/delUser/{userId}` | {"id", "userId"} | Removes the provided user from the organization
-
+[Lagom]:https://lagomframework.com/
+[Maven]:https://maven.apache.org/
+[Event Sourcing]:https://docs.microsoft.com/en-us/previous-versions/msp-n-p/jj591559(v=pandp.10)?redirectedfrom=MSDN
