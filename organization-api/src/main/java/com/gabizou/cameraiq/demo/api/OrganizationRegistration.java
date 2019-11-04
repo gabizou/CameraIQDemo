@@ -22,6 +22,10 @@ public class OrganizationRegistration {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getEntityId() {
+        return this.name;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

@@ -4,12 +4,10 @@ import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
-import com.lightbend.lagom.javadsl.api.broker.Topic;
-import com.lightbend.lagom.javadsl.api.broker.kafka.KafkaProperties;
 import com.lightbend.lagom.javadsl.api.deser.PathParamSerializers;
-import org.pcollections.PSequence;
+import com.lightbend.lagom.javadsl.api.transport.Method;
+import org.pcollections.POrderedSet;
 
-import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
@@ -22,10 +20,11 @@ public interface UserService extends Service {
 
     /**
      * Gets a single {@link User user} by {@link UUID uuid}.
-     * @param id
+     *
+     * @param uuid
      * @return
      */
-    ServiceCall<NotUsed, User> user(String id);
+    ServiceCall<NotUsed, User> lookupUser(UUID uuid);
 
     /**
      * Creates a single {@link User}.
@@ -38,15 +37,20 @@ public interface UserService extends Service {
      */
     ServiceCall<UserRegistration, User> createUser();
 
-    ServiceCall<NotUsed, PSequence<User>> getUsers(@Nullable Integer pageNo, @Nullable Integer pageSize);
+    /**
+     * Gets a list of all users.
+     *
+     * @return The list of all users
+     */
+    ServiceCall<NotUsed, POrderedSet<User>> getUsers();
 
     @Override
     default Descriptor descriptor() {
         return Service.named("users")
             .withCalls(
-                    Service.pathCall("/api/user/", this::createUser),
-                Service.pathCall("/api/user/:id", this::user),
-                Service.pathCall("/api/user?pageNo&pageSize", this::getUsers)
+                Service.pathCall("/api/user/", this::createUser),
+                Service.pathCall("/api/user/:id", this::lookupUser),
+                Service.restCall(Method.GET, "/api/user/", this::getUsers)
             )
             .withPathParamSerializer(UUID.class, PathParamSerializers.required("UUID", UUID::fromString, UUID::toString))
             .withAutoAcl(true);

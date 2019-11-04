@@ -92,7 +92,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <scala.binary.version>2.12</scala.binary.version>
-        
-        <lagom.version>1.6.0-M7</lagom.version>
+
+        <lagom.version>1.5.4</lagom.version>
     </properties>
 </project>

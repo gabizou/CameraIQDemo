@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
 
@@ -56,5 +57,30 @@ public final class UserRegistration {
     @Override
     public int hashCode() {
         return Objects.hash(this.firstName, this.lastName, this.address, this.email, this.phoneNumber);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+            .add("firstName", this.firstName)
+            .add("lastName", this.lastName)
+            .add("address", this.address)
+            .add("email", this.email)
+            .add("phoneNumber", this.phoneNumber)
+            .toString();
+    }
+
+    /**
+     * The entity ID is used for sharding UserRegistrations.
+     * This allows implementing business-specific rules for
+     * detecting and resolving conflicting registrations of users.
+     *
+     * The entity ID is effectively a primary key for a UserRegistration.
+     * Two UserRegistrations are distinct if they have distinct entityIDs.
+     *
+     * @return
+     */
+    public String entityID() {
+        return this.firstName + "|" + this.lastName + "|" + this.email;
     }
 }

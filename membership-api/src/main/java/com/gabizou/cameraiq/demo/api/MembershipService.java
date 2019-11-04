@@ -10,38 +10,40 @@ import org.pcollections.PSequence;
 public interface MembershipService extends Service {
 
     /**
-     * Adds the provided {@link MemberUser user} to the {@link MemberOrganization organization}
+     * Adds the provided {@link User user} to the {@link Organization
+     * organization}
      * by {@code name}.
      *
      * @param name The organization's name
      * @return The organization as a response
      */
-    ServiceCall<MemberUser, MemberOrganization> addMember(String name);
+    ServiceCall<User, Organization> addMember(String name);
 
     /**
-     * Removes the requested {@link MemberUser User} from the queried
-     * {@link MemberOrganization Organization}.
+     * Removes the requested {@link User User} from the queried
+     * {@link Organization Organization}.
      *
      * @param name The organization name
      */
-    ServiceCall<MemberUser, NotUsed> removeMember(String name);
+    ServiceCall<User, NotUsed> removeMember(String name);
 
     /**
-     * Gets all {@link MemberUser users} part of an {@link MemberOrganization organization}.
+     * Gets all {@link User users} part of an {@link Organization
+     * organization}.
      *
      * @param name The organization name
      * @return The sequence of users
      */
-    ServiceCall<NotUsed, PSequence<MemberUser>> getMembers(String name);
+    ServiceCall<NotUsed, PSequence<User>> getMembers(String name);
 
     /**
-     * Gets the {@link PSequence list} of {@link MemberOrganization Organizations} that a
-     * {@link MemberUser User} may belong to.
+     * Gets the {@link PSequence list} of {@link Organization Organizations} that a
+     * {@link User User} may belong to.
      *
      * @param id The user id
      * @return The sequence (list) of organizations
      */
-    ServiceCall<NotUsed, PSequence<MemberOrganization>> getOrganizations(String id);
+    ServiceCall<NotUsed, PSequence<Organization>> getOrganizations(String id);
 
     @Override
     default Descriptor descriptor() {

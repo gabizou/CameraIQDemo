@@ -1,8 +1,10 @@
 package com.gabizou.cameraiq.demo.impl;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gabizou.cameraiq.demo.api.User;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
@@ -16,7 +18,7 @@ import javax.annotation.concurrent.Immutable;
 
 public interface UserEvent extends Jsonable, AggregateEvent<UserEvent> {
 
-    public static final AggregateEventTag<UserEvent> INSTANCE = AggregateEventTag.of(UserEvent.class);
+    AggregateEventTag<UserEvent> INSTANCE = AggregateEventTag.of(UserEvent.class);
 
     @Override
     default AggregateEventTagger<UserEvent> aggregateTag() {
@@ -31,21 +33,22 @@ public interface UserEvent extends Jsonable, AggregateEvent<UserEvent> {
      */
     @Immutable
     @JsonDeserialize
-    public final class UserCreated implements UserEvent {
+    final class UserCreated implements UserEvent {
 
-        public final UUID userId;
+        @JsonProperty
+        public final UserId userId;
+        @JsonProperty
         public final Instant timestamp;
 
-        public UserCreated(UUID userId, Instant timestamp) {
+        public UserCreated(UserId userId, Instant timestamp) {
             this.userId = userId;
             this.timestamp = timestamp;
         }
 
         @JsonCreator
-        private UserCreated(UUID uuid, Optional<Instant> timeStamp) {
+        private UserCreated(UserId uuid, Optional<Instant> timeStamp) {
             this(uuid, timeStamp.orElseGet(Instant::now));
         }
-
-
     }
+
 }

@@ -1,9 +1,8 @@
 package com.gabizou.cameraiq.demo.impl;
 
-import akka.Done;
-import com.gabizou.cameraiq.demo.api.User;
-import com.gabizou.cameraiq.demo.api.UserRegistration;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
+import org.pcollections.OrderedPSet;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -16,23 +15,22 @@ public final class UserEntity extends PersistentEntity<UserCommand, UserEvent, U
 
     @Override
     public Behavior initialBehavior(final Optional<UserState> snapshotState) {
-        final BehaviorBuilder behavior = this.newBehaviorBuilder(snapshotState.orElse(new UserState(Optional.empty())));
+        final BehaviorBuilder behavior =
+            this.newBehaviorBuilder(snapshotState.orElseGet(() -> new UserState(OrderedPSet.empty())));
         behavior.setCommandHandler(UserCommand.CreateUser.class, (cmd, ctx) -> {
-            if (this.state().user.isPresent()) {
+            final UserId userId = new UserId(cmd.registration.uuid);
+            if (this.state().users.contains(userId)) {
                 ctx.invalidCommand("User " + this.entityId() + " is already created");
                 return ctx.done();
             }
-            final UserRegistration registration = cmd.registration;
             final ArrayList<UserEvent> events = new ArrayList<>();
             // Actually add the user based on registration
-            final UUID uuid = UUID.randomUUID();
-            final User
-                newUser =
-                new User(uuid, cmd.registration.firstName, cmd.registration.lastName, cmd.registration.email, cmd.registration.phoneNumber, cmd.registration.address);
 
-            events.add(new UserEvent.UserCreated(uuid, Instant.now()));
-            return ctx.thenPersistAll(events, () -> ctx.reply(Done.getInstance()));
+            events.add(new UserEvent.UserCreated(userId, Instant.now()));
+            return ctx.thenPersistAll(events, () -> ctx.reply(cmd.registration));
         });
+        behavior.setEventHandler(UserEvent.UserCreated.class,
+            event -> new UserState(this.state().users.plus(event.userId)));
         return behavior.build();
     }
 }
