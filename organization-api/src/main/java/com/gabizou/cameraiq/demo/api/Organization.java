@@ -1,6 +1,5 @@
 package com.gabizou.cameraiq.demo.api;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;

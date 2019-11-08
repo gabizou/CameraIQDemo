@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.impl;
 
 import com.gabizou.cameraiq.demo.api.Organization;
 import com.gabizou.cameraiq.demo.api.User;
+import com.gabizou.cameraiq.demo.impl.events.MembershipEvent;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 
 import java.time.Instant;

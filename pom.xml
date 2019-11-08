@@ -17,6 +17,8 @@
         <module>organization-impl</module>
         <module>membership-api</module>
         <module>membership-impl</module>
+        <module>common-events</module>
+        <module>demo-utils</module>
     </modules>
 
     <build>
@@ -79,11 +81,6 @@
                 <version>${lagom.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-                <version>1.18.8</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -1,4 +1,4 @@
-package com.gabizou.cameraiq.demo.impl;
+package com.gabizou.cameraiq.demo.impl.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

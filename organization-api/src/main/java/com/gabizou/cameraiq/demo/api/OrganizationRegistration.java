@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.gabizou.cameraiq.demo.util.UUIDType5;
 
 import java.util.Objects;
 
@@ -23,7 +24,7 @@ public class OrganizationRegistration {
     }
 
     public String getEntityId() {
-        return this.name;
+        return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, this.name).toString();
     }
 
     @Override

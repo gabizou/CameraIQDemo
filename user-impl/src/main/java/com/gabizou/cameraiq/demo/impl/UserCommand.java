@@ -8,6 +8,8 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import com.lightbend.lagom.serialization.CompressedJsonable;
 import com.lightbend.lagom.serialization.Jsonable;
 
+import java.util.UUID;
+
 /**
  * Defines all commands that User entities support.
  *

@@ -9,23 +9,34 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>user-api</artifactId>
+    <artifactId>common-events</artifactId>
 
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>demo-utils</artifactId>
+            <artifactId>membership-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>organization-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>user-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
-            <artifactId>lagom-javadsl-api_${scala.binary.version}</artifactId>
+            <artifactId>lagom-javadsl-server_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
-            <artifactId>lagom-javadsl-kafka-broker_${scala.binary.version}</artifactId>
+            <artifactId>lagom-javadsl-persistence-cassandra_${scala.binary.version}</artifactId>
         </dependency>
+
     </dependencies>
+
 </project>

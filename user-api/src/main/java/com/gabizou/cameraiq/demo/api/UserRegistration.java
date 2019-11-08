@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.api;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.gabizou.cameraiq.demo.util.UUIDType5;
 import com.google.common.base.MoreObjects;
 
 import java.util.Objects;
@@ -81,6 +82,6 @@ public final class UserRegistration {
      * @return
      */
     public String entityID() {
-        return this.firstName + "|" + this.lastName + "|" + this.email;
+        return UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, this.email).toString();
     }
 }
