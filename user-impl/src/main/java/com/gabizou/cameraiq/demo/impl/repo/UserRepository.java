@@ -3,19 +3,16 @@ package com.gabizou.cameraiq.demo.impl.repo;
 import com.datastax.driver.core.Row;
 import com.gabizou.cameraiq.demo.api.User;
 import com.gabizou.cameraiq.demo.api.UserRegistration;
+import com.gabizou.cameraiq.demo.util.DemoFunctional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
-import org.pcollections.OrderedPSet;
 import org.pcollections.POrderedSet;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletionStage;
-import java.util.stream.Collector;
 
 @Singleton
 public class UserRepository {
@@ -94,16 +91,9 @@ public class UserRepository {
                     final User user = UserRepository.getUserFromRow(userRow);
                     users.add(user);
                 }
-                // For some reason, the compiler does not like trying to use streams with a mapper and collector.
-                // Complains something about generics which, honestly, the above function is
-                // doing the same thing, just not parallelized.
-                return OrderedPSet.from(users);
-//                return rows.stream()
-//                    .map(UserRepository::getUserFromRow)
-//                    .collect(Collector.of(ArrayList::new, Collection::add, (left, right) -> {
-//                        left.addAll(right);
-//                        return left;
-//                    }, OrderedPSet::from));
+                return rows.stream()
+                    .map(UserRepository::getUserFromRow)
+                    .collect(DemoFunctional.toImmutableSet());
             });
     }
 
@@ -116,13 +106,6 @@ public class UserRepository {
         final String phoneNumber = userRow.getString(5);
         final UserRegistration userInfo = new UserRegistration(firstName, lastName, address, email, phoneNumber);
         return new User(userId, userInfo);
-    }
-
-    public static Collector<User, List<User>, OrderedPSet<User>> toImmutableSet() {
-        return Collector.of(ArrayList::new, Collection::add, (left, right) -> {
-            left.addAll(right);
-            return left;
-        }, OrderedPSet::from);
     }
 
 }

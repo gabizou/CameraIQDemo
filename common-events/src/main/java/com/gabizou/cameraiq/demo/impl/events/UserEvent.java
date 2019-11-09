@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gabizou.cameraiq.demo.api.User;
 import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
+import com.lightbend.lagom.javadsl.persistence.AggregateEventShards;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
 import com.lightbend.lagom.serialization.Jsonable;
@@ -18,7 +19,7 @@ import javax.annotation.concurrent.Immutable;
 
 public interface UserEvent extends Jsonable, AggregateEvent<UserEvent> {
 
-    AggregateEventTag<UserEvent> INSTANCE = AggregateEventTag.of(UserEvent.class);
+    AggregateEventShards<UserEvent> INSTANCE = AggregateEventTag.sharded(UserEvent.class, 20);
 
     @Override
     default AggregateEventTagger<UserEvent> aggregateTag() {
@@ -51,4 +52,25 @@ public interface UserEvent extends Jsonable, AggregateEvent<UserEvent> {
         }
     }
 
+    /**
+     *
+     */
+    @Immutable
+    @JsonDeserialize
+    public class DeletedUser implements UserEvent {
+
+        public final UserId userId;
+        public final Instant timestamp;
+
+        public DeletedUser(UserId userId, Instant timestamp) {
+            this.userId = userId;
+            this.timestamp = timestamp;
+        }
+
+        @JsonCreator
+        private DeletedUser(UserId uuid, Optional<Instant> timeStamp) {
+            this(uuid, timeStamp.orElseGet(Instant::now));
+        }
+
+    }
 }

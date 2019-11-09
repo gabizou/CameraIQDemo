@@ -7,6 +7,8 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.PSequence;
 
+import java.util.UUID;
+
 public interface MembershipService extends Service {
 
     /**
@@ -17,7 +19,7 @@ public interface MembershipService extends Service {
      * @param name The organization's name
      * @return The organization as a response
      */
-    ServiceCall<User, Organization> addMember(String name);
+    ServiceCall<UUID, Organization> addMember(String name);
 
     /**
      * Removes the requested {@link User User} from the queried
@@ -25,7 +27,7 @@ public interface MembershipService extends Service {
      *
      * @param name The organization name
      */
-    ServiceCall<User, NotUsed> removeMember(String name);
+    ServiceCall<UUID, NotUsed> removeMember(String name);
 
     /**
      * Gets all {@link User users} part of an {@link Organization
@@ -45,6 +47,14 @@ public interface MembershipService extends Service {
      */
     ServiceCall<NotUsed, PSequence<Organization>> getOrganizations(String id);
 
+    /**
+     * Prunes all memberships of the provided {@link UserId User id}.
+     *
+     * @param userId The user id
+     * @return
+     */
+    ServiceCall<NotUsed, NotUsed> pruneAllMembershipsFor(UUID userId);
+
     @Override
     default Descriptor descriptor() {
         return Service.named("membership")
@@ -52,8 +62,10 @@ public interface MembershipService extends Service {
                 Service.pathCall("/api/organization/:name", this::getMembers),
                 Service.restCall(Method.PUT, "/api/organization/:name", this::addMember),
                 Service.restCall(Method.DELETE, "/api/organization/:name", this::removeMember),
-                Service.pathCall("/api/user/:id", this::getOrganizations)
+                Service.pathCall("/api/user/:id/memberships", this::getOrganizations),
+                Service.restCall(Method.DELETE, "/api/user/:id/deleteMemberships", this::pruneAllMembershipsFor)
             )
             .withAutoAcl(true);
     }
+
 }

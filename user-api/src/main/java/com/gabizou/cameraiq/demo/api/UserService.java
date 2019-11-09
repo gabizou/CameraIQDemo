@@ -49,7 +49,7 @@ public interface UserService extends Service {
         return Service.named("users")
             .withCalls(
                 Service.pathCall("/api/user/", this::createUser),
-                Service.restCall(Method.GET, "/api/user/:id", this::lookupUser),
+                Service.restCall(Method.GET, "/api/user/:uuid", this::lookupUser),
                 Service.restCall(Method.GET, "/api/user/", this::getUsers)
             )
             .withPathParamSerializer(UUID.class, PathParamSerializers.UUID)

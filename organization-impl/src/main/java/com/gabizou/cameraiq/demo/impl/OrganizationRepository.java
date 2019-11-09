@@ -41,7 +41,7 @@ public class OrganizationRepository {
                                             // Note that the UUID is stored strictly without ' quotes
                                             // because CQL's statements require that UUID types are not quoted, like strings
                                             // blame the interpreter....
-                                            + OrganizationRepository.ORG_PHONE_NUMBER + ") VALUES (%s, '%s', '%s', '%s', '%s', '%s');";
+                                            + OrganizationRepository.ORG_PHONE_NUMBER + ") VALUES (%s, '%s', '%s', '%s');";
 
 
     final CassandraSession session;
