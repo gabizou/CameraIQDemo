@@ -3,6 +3,7 @@ package com.gabizou.cameraiq.demo.impl;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gabizou.cameraiq.demo.api.Organization;
+import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import com.lightbend.lagom.serialization.CompressedJsonable;
 import com.lightbend.lagom.serialization.Jsonable;
@@ -32,6 +33,18 @@ public interface OrganizationCommand extends Jsonable {
         @JsonCreator
         public CreateOrganization(final Organization organization) {
             this.organization = organization;
+        }
+    }
+
+    @JsonDeserialize
+    public class GetOrganization implements OrganizationCommand,
+        CompressedJsonable, PersistentEntity.ReplyType<Organization> {
+        public final OrganizationId orgId;
+
+        @JsonCreator
+        public GetOrganization(final OrganizationId organizationId) {
+
+            this.orgId = organizationId;
         }
     }
 }

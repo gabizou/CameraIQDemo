@@ -19,10 +19,10 @@ import java.util.UUID;
 public class OrganizationServiceImpl implements OrganizationService {
 
     public static final String ENTITY_KEY = OrganizationServiceImpl.class.getName();
-    private final PersistentEntityRegistry registry;
-    private final OrganizationRepository repository;
     private static final Logger LOGGER = LogManager.getLogger(
         "OrganizationService");
+    private final PersistentEntityRegistry registry;
+    private final OrganizationRepository repository;
 
     @Inject
     public OrganizationServiceImpl(final PersistentEntityRegistry registry, final OrganizationRepository repository) {
@@ -34,9 +34,15 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public ServiceCall<NotUsed, Organization> organization(final String name) {
         return none -> {
+            OrganizationServiceImpl.LOGGER.debug("Getting organization by name: " + name);
             final UUID uuid = UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, name);
             return this.repository.lookupOrg(uuid);
         };
+    }
+
+    @Override
+    public ServiceCall<NotUsed, Organization> getOrganization(final OrganizationId organizationId) {
+        return none -> this.repository.lookupOrg(organizationId.uuid);
     }
 
     @Override
@@ -44,6 +50,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         return registrationInfo -> {
             final UUID uuid = UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, registrationInfo.name);
             final Organization newOrg = new Organization(new OrganizationId(uuid), registrationInfo);
+            OrganizationServiceImpl.LOGGER.debug("Creating organization by name: " + newOrg);
             return this.repository.saveOrganization(newOrg)
                 .thenComposeAsync(saved -> this.getEntityRef().ask(new OrganizationCommand.CreateOrganization(saved)));
         };

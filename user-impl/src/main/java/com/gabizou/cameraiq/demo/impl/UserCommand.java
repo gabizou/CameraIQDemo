@@ -4,15 +4,15 @@ import akka.Done;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gabizou.cameraiq.demo.api.User;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
 import com.lightbend.lagom.serialization.CompressedJsonable;
 import com.lightbend.lagom.serialization.Jsonable;
-
-import java.util.UUID;
+import org.pcollections.POrderedSet;
 
 /**
  * Defines all commands that User entities support.
- *
+ * <p>
  * By convention, the commands are inner classes of
  * this interface, since it's easier to see the overall
  * picture of what commands are supported, namely:
@@ -38,37 +38,20 @@ public interface UserCommand extends Jsonable {
     }
 
     @JsonDeserialize
-    final class UpdateUser implements UserCommand, CompressedJsonable,
-        PersistentEntity.ReplyType<User> {
-        public final User user;
-
-        @JsonCreator
-        public UpdateUser(final User user) {
-            this.user = user;
-        }
-    }
-
-    @JsonDeserialize
-    final class RemoveUser implements UserCommand, CompressedJsonable,
-        PersistentEntity.ReplyType<Done> {
-        public final User removing;
-
-        @JsonCreator
-        public RemoveUser(final User removing) {
-            this.removing = removing;
-        }
-    }
-
-
-    @JsonDeserialize
     public class GetUser implements UserCommand, CompressedJsonable,
         PersistentEntity.ReplyType<Done> {
 
-        public final UUID uuid;
+        public final UserId uuid;
 
         @JsonCreator
-        public GetUser(final UUID uuid) {
+        public GetUser(final UserId uuid) {
             this.uuid = uuid;
         }
+    }
+
+    @JsonDeserialize
+    public class GetAllUsers implements UserCommand, CompressedJsonable,
+        PersistentEntity.ReplyType<POrderedSet<User>> {
+
     }
 }

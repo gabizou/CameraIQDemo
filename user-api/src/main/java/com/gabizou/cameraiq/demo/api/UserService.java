@@ -21,12 +21,12 @@ import java.util.UUID;
 public interface UserService extends Service {
 
     /**
-     * Gets a single {@link User user} by {@link UUID uuid}.
+     * Gets a single {@link User user} by {@link UserId uuid}.
      *
      * @param uuid
      * @return
      */
-    ServiceCall<NotUsed, User> lookupUser(UUID uuid);
+    ServiceCall<NotUsed, User> lookupUser(UserId uuid);
 
     /**
      * Creates a single {@link User}.
@@ -65,6 +65,7 @@ public interface UserService extends Service {
                 Service.restCall(Method.POST, "/api/user/", this::getUsersByIds)
             )
             .withPathParamSerializer(UUID.class, PathParamSerializers.UUID)
+            .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
             .withAutoAcl(true);
     }
 }

@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.impl.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
@@ -35,16 +36,16 @@ public interface OrganizationEvent extends Jsonable,
     @JsonDeserialize
     final class OrganizationCreated implements OrganizationEvent {
 
-        public final UserId organizationId;
+        public final OrganizationId organizationId;
         public final Instant timestamp;
 
-        public OrganizationCreated(final UserId uuid, final Instant now) {
+        public OrganizationCreated(final OrganizationId uuid, final Instant now) {
             this.organizationId = uuid;
             this.timestamp = now;
         }
 
         @JsonCreator
-        private OrganizationCreated(final UserId uuid,
+        private OrganizationCreated(final OrganizationId uuid,
                                     Optional<Instant> timestamp) {
             this(uuid, timestamp.orElseGet(Instant::now));
         }

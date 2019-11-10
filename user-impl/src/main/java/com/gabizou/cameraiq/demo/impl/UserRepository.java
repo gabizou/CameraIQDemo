@@ -1,12 +1,16 @@
 package com.gabizou.cameraiq.demo.impl;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Row;
 import com.gabizou.cameraiq.demo.api.User;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.gabizou.cameraiq.demo.api.UserRegistration;
 import com.gabizou.cameraiq.demo.util.DemoFunctional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
 
 import java.util.UUID;
@@ -14,6 +18,9 @@ import java.util.concurrent.CompletionStage;
 
 @Singleton
 public class UserRepository {
+
+    private static final Logger LOGGER =
+        LogManager.getLogger(UserRepository.class);
 
     private static final String USER_TABLE_NAME = "user_data";
     private static final String USER_ID_COLUMN = "user_id";
@@ -51,30 +58,37 @@ public class UserRepository {
     @Inject
     public UserRepository(final CassandraSession session) {
         this.session = session;
+        UserRepository.LOGGER.debug("Executing create table query");
         this.session.executeCreateTable(UserRepository.CREATE_USER_TABLE);
     }
 
 
 
-    CompletionStage<User> lookupUser(final UUID uuid) {
-        return this.session.selectOne(UserRepository.SELECT_USER_BY_UUID + uuid.toString())
+    CompletionStage<User> lookupUser(final UserId uuid) {
+        return this.session.selectOne(UserRepository.SELECT_USER_BY_UUID + uuid.uuid.toString())
             .thenApplyAsync(row -> row.map(UserRepository::getUserFromRow)
                 .orElseThrow(() -> new IllegalStateException("Missing user-data for id: " + uuid)));
     }
 
     CompletionStage<User> saveUser(final User user) {
         return this.session.prepare(UserRepository.CREATE_USER)
-            .thenApply(statement -> statement.bind()
-                .setUUID(UserRepository.USER_ID_COLUMN, user.userId.uuid)
-                .setString(UserRepository.USER_FIRST_NAME, user.info.firstName)
-                .setString(UserRepository.USER_LAST_NAME, user.info.lastName)
-                .setString(UserRepository.USER_EMAIL, user.info.email)
-                .setString(UserRepository.USER_PHONE_NUMBER, user.info.phoneNumber)
-                .setString(UserRepository.USER_ADDRESS, user.info.address)
+            .thenApply(statement -> {
+                final BoundStatement boundStatement = statement.bind()
+                    .setUUID(UserRepository.USER_ID_COLUMN, user.userId.uuid)
+                    .setString(UserRepository.USER_FIRST_NAME, user.info.firstName)
+                    .setString(UserRepository.USER_LAST_NAME, user.info.lastName)
+                    .setString(UserRepository.USER_EMAIL, user.info.email)
+                    .setString(UserRepository.USER_PHONE_NUMBER, user.info.phoneNumber)
+                    .setString(UserRepository.USER_ADDRESS, user.info.address);
+                UserRepository.LOGGER.debug("Prepared bound statement: " + boundStatement);
+                return boundStatement;
+                }
             ).thenApply(this.session::executeWrite)
-            .thenApply(done -> user);
+            .thenApply(done -> {
+                UserRepository.LOGGER.debug("Completed save of user: " + user);
+                return user;
+            });
     }
-
     CompletionStage<POrderedSet<User>> getUsers() {
         return this.session.selectAll("SELECT * FROM user." + UserRepository.USER_TABLE_NAME)
             .thenApply(rows -> rows.stream()
@@ -83,6 +97,7 @@ public class UserRepository {
     }
 
     private static User getUserFromRow(Row userRow) {
+        UserRepository.LOGGER.debug("Converting Found Row into User: " + userRow);
         final UUID userId = userRow.getUUID(UserRepository.USER_ID_COLUMN);
         final String firstName = userRow.getString(UserRepository.USER_FIRST_NAME);
         final String lastName = userRow.getString(UserRepository.USER_LAST_NAME);
@@ -90,7 +105,9 @@ public class UserRepository {
         final String address = userRow.getString(UserRepository.USER_ADDRESS);
         final String phoneNumber = userRow.getString(UserRepository.USER_PHONE_NUMBER);
         final UserRegistration userInfo = new UserRegistration(firstName, lastName, address, email, phoneNumber);
-        return new User(userId, userInfo);
+        final User user = new User(new UserId(userId), userInfo);
+        UserRepository.LOGGER.debug("Converted User: " + user);
+        return user;
     }
 
 }

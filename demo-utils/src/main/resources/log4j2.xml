@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Filters>
+        <RegexFilter regex=".* Trying to find .*" onMatch="DENY" onMismatch="ACCEPT"/>
+    </Filters>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+
+        </Console>
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="[%d{ddMMMyyyy HH:mm:ss.SSS}] [%t/%level] [%logger/%markerSimpleName]: {%msg}{strip}%n%xEx"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="99" fileIndex="min"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="DebugFile" fileName="logs/debug.log" filePattern="logs/debug-%i.log.gz">
+            <PatternLayout pattern="[%d{ddMMMyyyy HH:mm:ss.SSS}] [%t/%level] [%logger/%markerSimpleName]: {%msg}{strip}%n%xEx"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="200MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="5" fileIndex="min"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+    <Loggers>
+        <Root level="error">
+            <AppenderRef ref="Console"/>
+        </Root>
+        <Logger name="com.gabizou.cameraiq.demo.impl.UserServiceImpl" level="info">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <Logger name="com.gabizou.cameraiq.demo.impl.UserRepository" level="debug">
+            <AppenderRef ref="Console"/>
+        </Logger>
+        <!-- Set logging for all Play library classes to INFO -->
+        <Logger name="play" level="INFO"/>
+        <!-- Set logging for all Akka library classes to INFO -->
+        <Logger name="akka" level="INFO"/>
+        <!-- Set logging for all Lagom library classes to INFO -->
+        <Logger name="com.lightbend.lagom" level="INFO"/>
+
+        <!-- Cassandra and the datastax driver are used by the Lagom event sourcing modules -->
+        <Logger name="org.apache.cassandra" level="ERROR"/>
+        <Logger name="com.datastax.driver" level="ERROR"/>
+        <!-- Turn down Kafka noise -->
+        <Logger name="org.apache.kafka" level="WARN"/>
+
+    </Loggers>
+</Configuration>

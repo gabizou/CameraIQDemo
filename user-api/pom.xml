@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.lightbend.lagom</groupId>
-            <artifactId>lagom-javadsl-kafka-broker_${scala.binary.version}</artifactId>
+            <artifactId>lagom-javadsl-jackson_2.12</artifactId>
         </dependency>
     </dependencies>
 </project>

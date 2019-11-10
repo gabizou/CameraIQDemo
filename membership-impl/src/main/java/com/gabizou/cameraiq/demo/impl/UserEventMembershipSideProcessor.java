@@ -5,6 +5,7 @@ import akka.japi.Pair;
 import akka.stream.Attributes;
 import akka.stream.javadsl.Flow;
 import com.gabizou.cameraiq.demo.api.MembershipService;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.gabizou.cameraiq.demo.impl.events.UserEvent;
 import com.google.inject.Inject;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
@@ -36,7 +37,8 @@ public class UserEventMembershipSideProcessor extends ReadSideProcessor<UserEven
                     .mapAsyncUnordered(10, e -> {
                         final UserEvent event = e.first();
                         if (event instanceof UserEvent.DeletedUser) {
-                            final UUID userId = ((UserEvent.DeletedUser) event).userId.uuid;
+                            final UserId userId =
+                                ((UserEvent.DeletedUser) event).userId;
                             return UserEventMembershipSideProcessor.this.membership.pruneAllMembershipsFor(userId).invoke()
                                 .thenApply(none -> Done.getInstance());
                         }

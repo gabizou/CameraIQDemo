@@ -11,6 +11,7 @@ public class MembershipModule extends AbstractModule implements ServiceGuiceSupp
     @Override
     protected void configure() {
         this.bindService(MembershipService.class, MembershipServiceImpl.class);
+        this.bind(UserEventMembershipSideProcessor.class);
         this.bindClient(UserService.class);
         this.bindClient(OrganizationService.class);
     }

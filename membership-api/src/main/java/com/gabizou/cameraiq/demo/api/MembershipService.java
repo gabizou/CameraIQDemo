@@ -4,6 +4,7 @@ import akka.NotUsed;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
+import com.lightbend.lagom.javadsl.api.deser.PathParamSerializers;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.OrderedPSet;
 import org.pcollections.POrderedSet;
@@ -77,6 +78,7 @@ public interface MembershipService extends Service {
                 Service.restCall(Method.DELETE, "/api/user/:id/", this::pruneAllMembershipsFor),
                 Service.restCall(Method.POST, "/api/organization/:organizationName/member", this::getMembership)
             )
+            .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
             .withAutoAcl(true);
     }
 

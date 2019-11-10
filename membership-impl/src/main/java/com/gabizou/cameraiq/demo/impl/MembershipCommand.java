@@ -63,7 +63,7 @@ public interface MembershipCommand extends Jsonable {
 
     @JsonDeserialize
     public class GetMembershipsOfUser implements MembershipCommand,
-    CompressedJsonable, PersistentEntity.ReplyType<POrderedSet<Organization>> {
+    CompressedJsonable, PersistentEntity.ReplyType<POrderedSet<Membership>> {
         public final UserId userId;
 
         @JsonCreator

@@ -14,6 +14,8 @@ import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import com.lightbend.lagom.javadsl.persistence.ReadSide;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
 
 public class MembershipServiceImpl implements MembershipService {
@@ -22,6 +24,8 @@ public class MembershipServiceImpl implements MembershipService {
     private final PersistentEntityRegistry registry;
     private final UserService users;
     private final OrganizationService organizationService;
+    private static final Logger LOGGER = LogManager.getLogger(
+        "MembershipService");
 
     @Inject
     public MembershipServiceImpl(final PersistentEntityRegistry registry,
@@ -38,24 +42,31 @@ public class MembershipServiceImpl implements MembershipService {
 
     @Override
     public ServiceCall<UserId, Membership> addMember(final String name) {
-        return request -> this.organizationService.organization(name)
-            .invoke()
-            .thenComposeAsync(org ->
-                this.users.lookupUser(request.uuid)
-                    .invoke()
-                    .thenComposeAsync(user -> {
-                        final Membership membership = new Membership(org.orgId,
-                            user.userId);
-                        return this.getMemberEntityFor().ask(new MembershipCommand.CreateMembership(membership));
-                    })
-            );
+        return request -> {
+            MembershipServiceImpl.LOGGER.debug("Looking up organization: " + name);
+            return this.organizationService.organization(name)
+                .invoke()
+                .thenComposeAsync(org ->
+                    this.users.lookupUser(request)
+                        .invoke()
+                        .thenComposeAsync(user -> {
+                            final Membership membership = new Membership(org.orgId, user.userId);
+                            MembershipServiceImpl.LOGGER.debug("Executing command to create " +
+                                "Membership: " + membership);
+                            return this.getMemberEntityFor().ask(new MembershipCommand.CreateMembership(membership));
+                        })
+                );
+        };
     }
 
     @Override
     public ServiceCall<UserId, Membership> getMembership(final String name) {
         return request -> this.organizationService.organization(name)
             .invoke()
-            .thenComposeAsync(org -> this.getMemberEntityFor().ask(new MembershipCommand.GetMembership(org, request)));
+            .thenComposeAsync(org -> {
+                MembershipServiceImpl.LOGGER.debug("Proceeding to look up Membership(user=" + request + ", org=" + name + ")");
+                return this.getMemberEntityFor().ask(new MembershipCommand.GetMembership(org, request));
+            });
     }
 
     @Override
@@ -63,10 +74,13 @@ public class MembershipServiceImpl implements MembershipService {
         return request -> this.organizationService.organization(name)
             .invoke()
             .thenComposeAsync(organization ->
-                this.users.lookupUser(request.uuid)
+                this.users.lookupUser(request)
                     .invoke()
-                    .thenComposeAsync(user -> this.getMemberEntityFor()
-                        .ask(new MembershipCommand.DeleteMembership(organization.orgId, request))));
+                    .thenComposeAsync(user -> {
+                        MembershipServiceImpl.LOGGER.debug("Proceeding to delete Membership(user=" + request + ", org=" + name + ")");
+                        return this.getMemberEntityFor()
+                            .ask(new MembershipCommand.DeleteMembership(organization.orgId, request));
+                    }));
 
     }
 
@@ -77,7 +91,7 @@ public class MembershipServiceImpl implements MembershipService {
             .thenComposeAsync((Organization org) -> this.getMemberEntityFor()
                 .ask(new MembershipCommand.GetMembersOfOrganization(org)))
             .thenApplyAsync(memberships -> memberships.stream()
-                .map(membership -> this.users.lookupUser(membership.user.uuid))
+                .map(membership -> this.users.lookupUser(membership.user))
                 .map(ServiceCall::invoke)
                 .map(stage -> stage.toCompletableFuture().join())
                 .collect(DemoFunctional.toImmutableSet())
@@ -88,7 +102,15 @@ public class MembershipServiceImpl implements MembershipService {
     public ServiceCall<NotUsed, POrderedSet<Organization>> getOrganizations(final UserId id) {
         return notUsed ->
             this.getMemberEntityFor()
-                .ask(new MembershipCommand.GetMembershipsOfUser(id));
+                .ask(new MembershipCommand.GetMembershipsOfUser(id))
+                .thenApplyAsync(memberships ->
+                    memberships.parallelStream()
+                        .map(membership -> membership.organization)
+                        .map(orgId -> this.organizationService.getOrganization(orgId))
+                    .map(call -> call.invoke())
+                    .map(stage -> stage.toCompletableFuture().join())
+                    .collect(DemoFunctional.toImmutableSet())
+                );
 
     }
 

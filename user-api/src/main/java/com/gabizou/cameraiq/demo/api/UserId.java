@@ -34,8 +34,10 @@ public class UserId implements Jsonable {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("userId", this.uuid)
-            .toString();
+        return this.uuid.toString();
+    }
+
+    public static UserId fromString(String id) {
+        return new UserId(UUID.fromString(id));
     }
 }

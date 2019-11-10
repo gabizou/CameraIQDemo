@@ -1,12 +1,16 @@
 package com.gabizou.cameraiq.demo.impl;
 
+import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Row;
 import com.gabizou.cameraiq.demo.api.Organization;
+import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.gabizou.cameraiq.demo.api.OrganizationRegistration;
 import com.gabizou.cameraiq.demo.util.DemoFunctional;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.lightbend.lagom.javadsl.persistence.cassandra.CassandraSession;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
 
 import java.util.UUID;
@@ -39,12 +43,15 @@ public class OrganizationRepository {
                                             // blame the interpreter....
                                             + OrganizationRepository.ORG_PHONE_NUMBER + ") VALUES (?, '?', '?', '?');";
 
+    private static final Logger LOGGER =
+        LogManager.getLogger(OrganizationRepository.class);
 
     private final CassandraSession session;
 
     @Inject
     public OrganizationRepository(final CassandraSession session) {
         this.session = session;
+        OrganizationRepository.LOGGER.debug("Executing create table query");
         this.session.executeCreateTable(OrganizationRepository.CREATE_ORG_TABLE);
     }
 
@@ -59,13 +66,21 @@ public class OrganizationRepository {
 
     CompletionStage<Organization> saveOrganization(final Organization org) {
         return this.session.prepare(OrganizationRepository.CREATE_ORG)
-            .thenApply(statement -> statement.bind()
-                .setUUID(OrganizationRepository.ORG_ID_COLUMN, org.orgId.uuid)
-                .setString(OrganizationRepository.ORG_NAME, org.info.name)
-                .setString(OrganizationRepository.ORG_ADDRESS, org.info.address)
-                .setString(OrganizationRepository.ORG_PHONE_NUMBER, org.info.phoneNumber)
+            .thenApply(statement -> {
+                    final BoundStatement boundStatement = statement.bind()
+                        .setUUID(OrganizationRepository.ORG_ID_COLUMN, org.orgId.uuid)
+                        .setString(OrganizationRepository.ORG_NAME, org.info.name)
+                        .setString(OrganizationRepository.ORG_ADDRESS, org.info.address)
+                        .setString(OrganizationRepository.ORG_PHONE_NUMBER, org.info.phoneNumber);
+                    OrganizationRepository.LOGGER.debug("Prepared bound statement: " + boundStatement);
+                    return boundStatement;
+                }
             ).thenApply(this.session::executeWrite)
-            .thenApply(done -> org);
+            .thenApply(done -> {
+                OrganizationRepository.LOGGER.debug("Completed save of " +
+                    "organization: " + org);
+                return org;
+            });
     }
 
     CompletionStage<POrderedSet<Organization>> getOrganizations() {
@@ -76,12 +91,15 @@ public class OrganizationRepository {
     }
 
     private static Organization getOrgFromRow(Row orgRow) {
+        OrganizationRepository.LOGGER.debug("Converting found row into Organization:" + orgRow);
         final UUID orgId = orgRow.getUUID(OrganizationRepository.ORG_ID_COLUMN);
         final String name = orgRow.getString(OrganizationRepository.ORG_NAME);
         final String address = orgRow.getString(OrganizationRepository.ORG_ADDRESS);
         final String phoneNumber = orgRow.getString(OrganizationRepository.ORG_PHONE_NUMBER);
         final OrganizationRegistration orgInfo = new OrganizationRegistration(name, address, phoneNumber);
-        return new Organization(orgId, orgInfo);
+        final Organization organization = new Organization(new OrganizationId(orgId), orgInfo);
+        OrganizationRepository.LOGGER.debug("Converted Organization: " + organization);
+        return organization;
     }
 
 }

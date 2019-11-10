@@ -5,6 +5,7 @@ import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.deser.PathParamSerializers;
+import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.POrderedSet;
 
 import java.util.UUID;
@@ -18,6 +19,9 @@ public interface OrganizationService extends Service {
      * @return The organization
      */
     ServiceCall<NotUsed, Organization> organization(String name);
+
+
+    ServiceCall<NotUsed, Organization> getOrganization(OrganizationId orgId);
 
     /**
      * Creates a new {@link Organization} via {@link OrganizationRegistration registration object}
@@ -39,8 +43,11 @@ public interface OrganizationService extends Service {
             .withCalls(
                 Service.pathCall("/api/organization/", this::createOrganization),
                 Service.pathCall("/api/organization/:name", this::organization),
-                Service.pathCall("/api/organization/", this::getOrganizations)
-            ).withPathParamSerializer(UUID.class, PathParamSerializers.required("UUID", UUID::fromString, UUID::toString))
+                Service.pathCall("/api/organization/", this::getOrganizations),
+                Service.restCall(Method.POST, "/api/organization/:orgId", this::getOrganization)
+            )
+            .withPathParamSerializer(UUID.class, PathParamSerializers.required("UUID", UUID::fromString, UUID::toString))
+            .withPathParamSerializer(OrganizationId.class, PathParamSerializers.required("OrganizationId", OrganizationId::fromString, OrganizationId::toString))
             .withAutoAcl(true);
     }
 

@@ -12,7 +12,8 @@ import com.google.inject.Inject;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRef;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
-import org.pcollections.OrderedPSet;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
 
 import java.util.Set;
@@ -25,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private static final String ENTITY_KEY = UserServiceImpl.class.getName();
     private final PersistentEntityRegistry registry;
     private final UserRepository repo;
+    private static final Logger LOGGER = LogManager.getLogger("UserService");
 
     @Inject
     public UserServiceImpl(PersistentEntityRegistry registry,
@@ -35,14 +37,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ServiceCall<NotUsed, User> lookupUser(UUID uuid) {
+    public ServiceCall<NotUsed, User> lookupUser(UserId uuid) {
         return request -> this.getUserRef()
             .ask(new UserCommand.GetUser(uuid))
-            .thenComposeAsync(done -> this.repo.lookupUser(uuid));
-    }
-
-    private PersistentEntityRef<UserCommand> getUserRef() {
-        return this.registry.refFor(UserEntity.class, UserServiceImpl.ENTITY_KEY);
+            .thenComposeAsync(done -> {
+                UserServiceImpl.LOGGER.info("Looking up user " + uuid);
+                return this.repo.lookupUser(uuid);
+            });
     }
 
     @Override
@@ -50,6 +51,7 @@ public class UserServiceImpl implements UserService {
         return registrationInfo -> {
             final UUID uuid = UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, registrationInfo.email);
             final User newUser = new User(new UserId(uuid), registrationInfo);
+            UserServiceImpl.LOGGER.info("Creating new user " + newUser);
 
             return this.repo.saveUser(newUser)
                 .thenComposeAsync(saved -> this.getUserRef()
@@ -66,8 +68,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public ServiceCall<Set<UserId>, Pair<POrderedSet<User>, Set<String>>> getUsersByIds() {
         return userIds -> {
-            final OrderedPSet<ServiceCall<NotUsed, User>> serviceCalls = userIds.parallelStream()
-                .map(userId -> userId.uuid)
+            final POrderedSet<ServiceCall<NotUsed, User>> serviceCalls = userIds.parallelStream()
                 .map(this::lookupUser)
                 .collect(DemoFunctional.toImmutableSet());
             // Gather all futures to handle, with the exception handling below
@@ -81,6 +82,10 @@ public class UserServiceImpl implements UserService {
 
 
         };
+    }
+
+    private PersistentEntityRef<UserCommand> getUserRef() {
+        return this.registry.refFor(UserEntity.class, UserServiceImpl.ENTITY_KEY);
     }
 
 }

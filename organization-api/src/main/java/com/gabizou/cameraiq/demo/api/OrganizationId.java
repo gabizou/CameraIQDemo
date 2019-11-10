@@ -34,8 +34,10 @@ public class OrganizationId {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("organizationId", this.uuid)
-            .toString();
+        return this.uuid.toString();
+    }
+
+    public static OrganizationId fromString(String id) {
+        return new OrganizationId(UUID.fromString(id));
     }
 }
