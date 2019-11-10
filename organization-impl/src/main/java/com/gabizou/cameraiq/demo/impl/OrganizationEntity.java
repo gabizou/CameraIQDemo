@@ -8,31 +8,31 @@ import org.pcollections.OrderedPSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.UUID;
 
 public class OrganizationEntity extends PersistentEntity<OrganizationCommand,
     OrganizationEvent, OrganizationState> {
 
+    @SuppressWarnings("unchecked")
     @Override
     public PersistentEntity.Behavior initialBehavior(final Optional<OrganizationState> snapshotState) {
 
-        final BehaviorBuilder behaviorBuilder =
+        final BehaviorBuilder builder =
             this.newBehaviorBuilder(snapshotState.orElseGet(() -> new OrganizationState(OrderedPSet.empty())));
-        behaviorBuilder.setCommandHandler(OrganizationCommand.CreateOrganization.class, (cmd, ctx) -> {
-            final UserId userId = new UserId(cmd.organization.uuid);
-            if (this.state().organizations.contains(userId)) {
+        builder.setCommandHandler(OrganizationCommand.CreateOrganization.class, (cmd, ctx) -> {
+            final UserId orgId = new UserId(cmd.organization.orgId);
+            if (this.state().organizations.contains(orgId)) {
                 ctx.invalidCommand("Organization " + this.entityId() + " is " +
                     "already created");
                 return ctx.done();
             }
             final ArrayList<OrganizationEvent> events = new ArrayList<>();
             // Add the organization created event
-            events.add(new OrganizationEvent.OrganizationCreated(userId, Instant.now()));
+            events.add(new OrganizationEvent.OrganizationCreated(orgId, Instant.now()));
             return ctx.thenPersistAll(events, () -> ctx.reply(cmd.organization));
         });
-        behaviorBuilder.setEventHandler(OrganizationEvent.OrganizationCreated.class, event ->
+        builder.setEventHandler(OrganizationEvent.OrganizationCreated.class, event ->
             new OrganizationState(this.state().organizations.plus(event.organizationId))
         );
-        return behaviorBuilder.build();
+        return builder.build();
     }
 }

@@ -60,4 +60,15 @@ public interface UserCommand extends Jsonable {
     }
 
 
+    @JsonDeserialize
+    public class GetUser implements UserCommand, CompressedJsonable,
+        PersistentEntity.ReplyType<Done> {
+
+        public final UUID uuid;
+
+        @JsonCreator
+        public GetUser(final UUID uuid) {
+            this.uuid = uuid;
+        }
+    }
 }

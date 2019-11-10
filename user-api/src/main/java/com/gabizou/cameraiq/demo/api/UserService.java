@@ -1,6 +1,7 @@
 package com.gabizou.cameraiq.demo.api;
 
 import akka.NotUsed;
+import akka.japi.Pair;
 import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
@@ -8,6 +9,7 @@ import com.lightbend.lagom.javadsl.api.deser.PathParamSerializers;
 import com.lightbend.lagom.javadsl.api.transport.Method;
 import org.pcollections.POrderedSet;
 
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,13 +46,23 @@ public interface UserService extends Service {
      */
     ServiceCall<NotUsed, POrderedSet<User>> getUsers();
 
+    /**
+     * Gets a {@link Set set} of {@link User users} by the provided set of
+     * id's, and provides the pairing of found users, and any errors as a
+     * result.
+     *
+     * @return
+     */
+    ServiceCall<Set<UserId>, Pair<POrderedSet<User>, Set<String>>> getUsersByIds();
+
     @Override
     default Descriptor descriptor() {
         return Service.named("users")
             .withCalls(
-                Service.pathCall("/api/user/", this::createUser),
+                Service.restCall(Method.POST, "/api/user/", this::createUser),
                 Service.restCall(Method.GET, "/api/user/:uuid", this::lookupUser),
-                Service.restCall(Method.GET, "/api/user/", this::getUsers)
+                Service.restCall(Method.GET, "/api/user/", this::getUsers),
+                Service.restCall(Method.POST, "/api/user/", this::getUsersByIds)
             )
             .withPathParamSerializer(UUID.class, PathParamSerializers.UUID)
             .withAutoAcl(true);

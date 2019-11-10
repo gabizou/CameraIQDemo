@@ -2,6 +2,7 @@ package com.gabizou.cameraiq.demo.impl;
 
 import akka.NotUsed;
 import com.gabizou.cameraiq.demo.api.Organization;
+import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.gabizou.cameraiq.demo.api.OrganizationRegistration;
 import com.gabizou.cameraiq.demo.api.OrganizationService;
 import com.gabizou.cameraiq.demo.util.UUIDType5;
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 public class OrganizationServiceImpl implements OrganizationService {
 
+    public static final String ENTITY_KEY = OrganizationServiceImpl.class.getName();
     private final PersistentEntityRegistry registry;
     private final OrganizationRepository repository;
     private static final Logger LOGGER = LogManager.getLogger(
@@ -40,21 +42,15 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public ServiceCall<OrganizationRegistration, Organization> createOrganization() {
         return registrationInfo -> {
-            final PersistentEntityRef<OrganizationCommand> ref = this.registry.refFor(OrganizationEntity.class,
-                registrationInfo.getEntityId());
-            // Create a unique id based on the name, this will allow us to
-            // completely block the creation and potential duplication of organization names previously registered
-            // to where the uuid of the organization is now permanent, but the name can be changed.
-            // Likewise, what this will allow us to do is record rename events to be able
-            // to serve up legacy urls for organizations prior to a renaming.
-            // Removing an organization of course still will remove those legacy bindings
             final UUID uuid = UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, registrationInfo.name);
-            final Organization newOrg = new Organization(uuid, registrationInfo);
-            OrganizationServiceImpl.LOGGER.info(String.format("Created new Organization{%s}", newOrg));
-            // TODO - persistence of the organization
-            return ref.ask(new OrganizationCommand.CreateOrganization(newOrg))
-                .thenApply(this.repository::saveOrganization);
+            final Organization newOrg = new Organization(new OrganizationId(uuid), registrationInfo);
+            return this.repository.saveOrganization(newOrg)
+                .thenComposeAsync(saved -> this.getEntityRef().ask(new OrganizationCommand.CreateOrganization(saved)));
         };
+    }
+
+    private PersistentEntityRef<OrganizationCommand> getEntityRef() {
+        return this.registry.refFor(OrganizationEntity.class, OrganizationServiceImpl.ENTITY_KEY);
     }
 
     @Override

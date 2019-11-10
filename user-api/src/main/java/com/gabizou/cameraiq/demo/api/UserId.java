@@ -12,11 +12,11 @@ import java.util.UUID;
 @JsonDeserialize
 public class UserId implements Jsonable {
 
-    public final UUID userId;
+    public final UUID uuid;
 
     @JsonCreator
-    public UserId(@JsonProperty("userId") final UUID userId) {
-        this.userId = userId;
+    public UserId(@JsonProperty("userId") final UUID uuid) {
+        this.uuid = uuid;
     }
 
     @Override
@@ -24,18 +24,18 @@ public class UserId implements Jsonable {
         if (this == o) return true;
         if (o == null || this.getClass() != o.getClass()) return false;
         final UserId userId1 = (UserId) o;
-        return Objects.equals(this.userId, userId1.userId);
+        return Objects.equals(this.uuid, userId1.uuid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.userId);
+        return Objects.hash(this.uuid);
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-            .add("userId", this.userId)
+            .add("userId", this.uuid)
             .toString();
     }
 }

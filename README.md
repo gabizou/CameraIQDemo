@@ -1,4 +1,4 @@
-##CameraIQ RESTful API Demo
+## CameraIQ RESTful API Demo
 
 A simple webapp created with [Lagom] and [Maven]. Designed with the following:
 
@@ -28,6 +28,15 @@ following operations:
 
 API documentation can be viewed [here]() `// TODO - Due to the implementation of Memberships being still a WIP, I've yet to use Swagger.io to make
  the OpenAPI docs`
+
+### Todo's
+
+- Ensure Defensive Programming Practices
+    - Validate ignored return results of statements
+    - Verify statement side effects
+- Migrate from [low-level CQL](user-impl/src/main/java/com/gabizou/cameraiq/demo/impl/UserRepository.java) to [Achilles]
+- Make use of Logger for various operations
+- OpenAPI generation with [Lagom-OpenAPI]
 
 ### A bit of explanation about this implementation
 
@@ -169,3 +178,5 @@ GDPR in mind, complete user-data replacement, and cross-service interoperability
 [ReadSideEventProcessors]:https://www.lagomframework.com/documentation/1.5.x/java/api/index.html?com/lightbend/lagom/javadsl/persistence/ReadSideProcessor.html
 [eventual consistency]:https://www.erikheemskerk.nl/event-sourcing-eventual-consistency-responding-to-events/
 [UserRepository]:user-impl/src/main/java/com/gabizou/cameraiq/demo/impl/repo/UserRepository.java
+[Achilles]:https://github.com/doanduyhai/Achilles
+[Lagom-OpenAPI]:https://github.com/taymyr/lagom-openapi#12-generate-java-dsl

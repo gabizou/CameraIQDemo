@@ -5,6 +5,8 @@ import com.lightbend.lagom.javadsl.api.Descriptor;
 import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.transport.Method;
+import org.pcollections.OrderedPSet;
+import org.pcollections.POrderedSet;
 import org.pcollections.PSequence;
 
 import java.util.UUID;
@@ -16,36 +18,45 @@ public interface MembershipService extends Service {
      * organization}
      * by {@code name}.
      *
-     * @param name The organization's name
+     * @param organizationName The organization's name
      * @return The organization as a response
      */
-    ServiceCall<UUID, Organization> addMember(String name);
+    ServiceCall<UserId, Membership> addMember(String organizationName);
+
+    /**
+     * Gets the {@link Membership membership} of the {@link UserId user}
+     * for the {@link Organization organization by name}.
+     *
+     * @param organizationName The organization's name
+     * @return The membership as a response
+     */
+    ServiceCall<UserId, Membership> getMembership(final String organizationName);
 
     /**
      * Removes the requested {@link User User} from the queried
      * {@link Organization Organization}.
      *
-     * @param name The organization name
+     * @param organizationName The organization name
      */
-    ServiceCall<UUID, NotUsed> removeMember(String name);
+    ServiceCall<UserId, NotUsed> removeMember(String organizationName);
 
     /**
      * Gets all {@link User users} part of an {@link Organization
      * organization}.
      *
-     * @param name The organization name
+     * @param organizationName The organization name
      * @return The sequence of users
      */
-    ServiceCall<NotUsed, PSequence<User>> getMembers(String name);
+    ServiceCall<NotUsed, POrderedSet<User>> getMembers(String organizationName);
 
     /**
      * Gets the {@link PSequence list} of {@link Organization Organizations} that a
-     * {@link User User} may belong to.
+     * {@link UserId User} may belong to.
      *
      * @param id The user id
      * @return The sequence (list) of organizations
      */
-    ServiceCall<NotUsed, PSequence<Organization>> getOrganizations(String id);
+    ServiceCall<NotUsed, POrderedSet<Organization>> getOrganizations(UserId id);
 
     /**
      * Prunes all memberships of the provided {@link UserId User id}.
@@ -53,17 +64,18 @@ public interface MembershipService extends Service {
      * @param userId The user id
      * @return
      */
-    ServiceCall<NotUsed, NotUsed> pruneAllMembershipsFor(UUID userId);
+    ServiceCall<NotUsed, NotUsed> pruneAllMembershipsFor(UserId userId);
 
     @Override
     default Descriptor descriptor() {
         return Service.named("membership")
             .withCalls(
-                Service.pathCall("/api/organization/:name", this::getMembers),
-                Service.restCall(Method.PUT, "/api/organization/:name", this::addMember),
-                Service.restCall(Method.DELETE, "/api/organization/:name", this::removeMember),
-                Service.pathCall("/api/user/:id/memberships", this::getOrganizations),
-                Service.restCall(Method.DELETE, "/api/user/:id/deleteMemberships", this::pruneAllMembershipsFor)
+                Service.restCall(Method.GET, "/api/organization/:organizationName", this::getMembers),
+                Service.restCall(Method.POST, "/api/organization/:organizationName", this::addMember),
+                Service.restCall(Method.DELETE, "/api/organization/:organizationName", this::removeMember),
+                Service.restCall(Method.GET, "/api/user/:id/memberships", this::getOrganizations),
+                Service.restCall(Method.DELETE, "/api/user/:id/", this::pruneAllMembershipsFor),
+                Service.restCall(Method.POST, "/api/organization/:organizationName/member", this::getMembership)
             )
             .withAutoAcl(true);
     }

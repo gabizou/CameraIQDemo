@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gabizou.cameraiq.demo.api.Membership;
 import com.gabizou.cameraiq.demo.api.Organization;
+import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.gabizou.cameraiq.demo.api.User;
+import com.gabizou.cameraiq.demo.api.UserId;
 import com.lightbend.lagom.javadsl.persistence.AggregateEvent;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTag;
 import com.lightbend.lagom.javadsl.persistence.AggregateEventTagger;
@@ -27,20 +29,20 @@ public interface MembershipEvent extends Jsonable,
 
     @Immutable
     @JsonDeserialize
-    final class CreatedMembership implements MembershipEvent {
-        public final User userId;
-        public final Organization organizationId;
+    final class CretedMembership implements MembershipEvent {
+        public final UserId userId;
+        public final OrganizationId organizationId;
         public final Instant timestamp;
 
 
-        public CreatedMembership(final User userId, final Organization organizationId, final Instant timestamp) {
+        public CretedMembership(final UserId userId, final OrganizationId organizationId, final Instant timestamp) {
             this.userId = userId;
             this.organizationId = organizationId;
             this.timestamp = timestamp;
         }
 
         @JsonCreator
-        private CreatedMembership(final User userId, final Organization organizationId, final Optional<Instant> timestamp) {
+        private CretedMembership(final UserId userId, final OrganizationId organizationId, final Optional<Instant> timestamp) {
             this(userId, organizationId, timestamp.orElseGet(Instant::now));
         }
     }

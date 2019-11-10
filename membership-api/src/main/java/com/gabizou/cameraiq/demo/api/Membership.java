@@ -12,11 +12,11 @@ import java.util.UUID;
 @JsonDeserialize
 public final class Membership {
 
-    public final Organization organization;
-    public final User user;
+    public final OrganizationId organization;
+    public final UserId user;
 
     @JsonCreator
-    public Membership(final Organization organization, final User user) {
+    public Membership(final OrganizationId organization, final UserId user) {
         this.organization = organization;
         this.user = user;
     }

@@ -1,7 +1,6 @@
 package com.gabizou.cameraiq.demo.impl;
 
 import com.gabizou.cameraiq.demo.api.UserService;
-import com.gabizou.cameraiq.demo.impl.repo.UserRepository;
 import com.google.inject.AbstractModule;
 import com.lightbend.lagom.javadsl.server.ServiceGuiceSupport;
 

@@ -3,7 +3,6 @@ package com.gabizou.cameraiq.demo.api;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -11,11 +10,11 @@ import javax.annotation.concurrent.Immutable;
 @JsonDeserialize
 public final class Organization {
 
-    public final UUID uuid;
+    public final OrganizationId orgId;
     public final OrganizationRegistration info;
 
-    public Organization(final UUID uuid, final OrganizationRegistration info) {
-        this.uuid = uuid;
+    public Organization(final OrganizationId orgId, final OrganizationRegistration info) {
+        this.orgId = orgId;
         this.info = info;
     }
 
@@ -24,13 +23,13 @@ public final class Organization {
         if (this == o) return true;
         if (o == null || this.getClass() != o.getClass()) return false;
         final Organization that = (Organization) o;
-        return Objects.equals(this.uuid, that.uuid) &&
+        return Objects.equals(this.orgId, that.orgId) &&
             Objects.equals(this.info, that.info);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.uuid, this.info);
+        return Objects.hash(this.orgId, this.info);
     }
 
 }
