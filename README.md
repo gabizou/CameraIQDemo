@@ -38,6 +38,17 @@ API documentation can be viewed [here]() `// TODO - Due to the implementation of
 - Make use of Logger for various operations
 - OpenAPI generation with [Lagom-OpenAPI]
 
+### Problems with Maven
+
+- If a maven plugin (e.g. Lagom) does not provide configuration parameters for some runtime aspect (e.g. logging),
+  then it is really difficult to configure that aspect (for logging, one has to use VM arguments instead).
+  
+- Finding the sources of Maven plugins (e.g., Lagom) is difficult -- Some IDEs (e.g. IntelliJ) do not show the Maven plugins
+  in the searchable classpath.
+  
+- Lack of configurations for certain aspects of Lagom's plugin (like logging)
+- Unable to search sources of Lagom-maven plugin as it's not a dependency
+
 ### A bit of explanation about this implementation
 
 #### Separation of Services

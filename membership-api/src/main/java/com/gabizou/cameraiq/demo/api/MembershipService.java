@@ -71,14 +71,15 @@ public interface MembershipService extends Service {
     default Descriptor descriptor() {
         return Service.named("membership")
             .withCalls(
-                Service.restCall(Method.GET, "/api/organization/:organizationName", this::getMembers),
-                Service.restCall(Method.POST, "/api/organization/:organizationName", this::addMember),
-                Service.restCall(Method.DELETE, "/api/organization/:organizationName", this::removeMember),
+                Service.restCall(Method.GET, "/api/organization/:organizationName/members", this::getMembers),
+                Service.restCall(Method.POST, "/api/organization/:organizationName/members", this::addMember),
+                Service.restCall(Method.DELETE, "/api/organization/:organizationName/members", this::removeMember),
                 Service.restCall(Method.GET, "/api/user/:id/memberships", this::getOrganizations),
                 Service.restCall(Method.DELETE, "/api/user/:id/", this::pruneAllMembershipsFor),
                 Service.restCall(Method.POST, "/api/organization/:organizationName/member", this::getMembership)
             )
             .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
+            .withPathParamSerializer(OrganizationId.class, PathParamSerializers.required("OrganizationId", OrganizationId::fromString, OrganizationId::toString))
             .withAutoAcl(true);
     }
 

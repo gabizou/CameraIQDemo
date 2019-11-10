@@ -37,6 +37,7 @@
                 <artifactId>lagom-maven-plugin</artifactId>
                 <version>${lagom.version}</version>
                 <configuration>
+                    <serviceLocatorEnabled>true</serviceLocatorEnabled>
                     <kafkaEnabled>false</kafkaEnabled>
                 </configuration>
             </plugin>

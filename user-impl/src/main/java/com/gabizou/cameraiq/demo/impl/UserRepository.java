@@ -2,6 +2,8 @@ package com.gabizou.cameraiq.demo.impl;
 
 import com.datastax.driver.core.BoundStatement;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.querybuilder.BuiltStatement;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.gabizou.cameraiq.demo.api.User;
 import com.gabizou.cameraiq.demo.api.UserId;
 import com.gabizou.cameraiq.demo.api.UserRegistration;
@@ -20,7 +22,7 @@ import java.util.concurrent.CompletionStage;
 public class UserRepository {
 
     private static final Logger LOGGER =
-        LogManager.getLogger(UserRepository.class);
+        LogManager.getLogger("com.gabizou.services." + UserRepository.class.getSimpleName());
 
     private static final String USER_TABLE_NAME = "user_data";
     private static final String USER_ID_COLUMN = "user_id";
@@ -38,7 +40,7 @@ public class UserRepository {
                                                    + UserRepository.USER_PHONE_NUMBER + " text"
                                                    + ");";
     // SELECT FROM user_data WHERE user_id=someUUID-00123-30ba-ac345;
-    private static final String SELECT_USER_BY_UUID = "SELECT FROM "
+    private static final String SELECT_USER_BY_UUID = "SELECT * FROM "
                                                      + UserRepository.USER_TABLE_NAME
                                                      + " WHERE " + UserRepository.USER_ID_COLUMN + "=";
     private static final String CREATE_USER = "INSERT INTO " + UserRepository.USER_TABLE_NAME + "("
@@ -50,7 +52,7 @@ public class UserRepository {
                                              // Note that the UUID is stored strictly without ' quotes
                                              // because CQL's statements require that UUID types are not quoted, like strings
                                              // blame the interpreter....
-                                             + UserRepository.USER_PHONE_NUMBER + ") VALUES (?, '?', '?', '?', '?', '?');";
+                                             + UserRepository.USER_PHONE_NUMBER + ") VALUES (?, ?, ?, ?, ?, ?);";
 
 
     private final CassandraSession session;
@@ -59,7 +61,8 @@ public class UserRepository {
     public UserRepository(final CassandraSession session) {
         this.session = session;
         UserRepository.LOGGER.debug("Executing create table query");
-        this.session.executeCreateTable(UserRepository.CREATE_USER_TABLE);
+        this.session.executeCreateTable(UserRepository.CREATE_USER_TABLE)
+            .whenCompleteAsync((done, ex) -> UserRepository.LOGGER.info("Completed table creation"));
     }
 
 
@@ -80,7 +83,7 @@ public class UserRepository {
                     .setString(UserRepository.USER_EMAIL, user.info.email)
                     .setString(UserRepository.USER_PHONE_NUMBER, user.info.phoneNumber)
                     .setString(UserRepository.USER_ADDRESS, user.info.address);
-                UserRepository.LOGGER.debug("Prepared bound statement: " + boundStatement);
+                UserRepository.LOGGER.debug("Prepared bound statement: " + boundStatement.preparedStatement().getQueryString());
                 return boundStatement;
                 }
             ).thenApply(this.session::executeWrite)

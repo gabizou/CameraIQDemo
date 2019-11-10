@@ -1,7 +1,11 @@
 package com.gabizou.cameraiq.demo.impl;
 
 import com.datastax.driver.core.BoundStatement;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Row;
+import com.datastax.driver.core.querybuilder.Clause;
+import com.datastax.driver.core.querybuilder.QueryBuilder;
+import com.datastax.driver.core.querybuilder.Select.Where;
 import com.gabizou.cameraiq.demo.api.Organization;
 import com.gabizou.cameraiq.demo.api.OrganizationId;
 import com.gabizou.cameraiq.demo.api.OrganizationRegistration;
@@ -31,7 +35,7 @@ public class OrganizationRepository {
                                                   + OrganizationRepository.ORG_PHONE_NUMBER + " text"
                                                   + ");";
     // SELECT FROM org_data WHERE org_id=someUUID-00123-30ba-ac345;
-    private static final String SELECT_ORG_BY_UUID = "SELECT FROM "
+    private static final String SELECT_ORG_BY_UUID = "SELECT * FROM "
                                                      + OrganizationRepository.ORG_TABLE_NAME
                                                      + " WHERE " + OrganizationRepository.ORG_ID_COLUMN + "=";
     private static final String CREATE_ORG = "INSERT INTO " + OrganizationRepository.ORG_TABLE_NAME + "("
@@ -41,7 +45,7 @@ public class OrganizationRepository {
                                             // Note that the UUID is stored strictly without ' quotes
                                             // because CQL's statements require that UUID types are not quoted, like strings
                                             // blame the interpreter....
-                                            + OrganizationRepository.ORG_PHONE_NUMBER + ") VALUES (?, '?', '?', '?');";
+                                            + OrganizationRepository.ORG_PHONE_NUMBER + ") VALUES (?, ?, ?, ?);";
 
     private static final Logger LOGGER =
         LogManager.getLogger(OrganizationRepository.class);
@@ -72,7 +76,7 @@ public class OrganizationRepository {
                         .setString(OrganizationRepository.ORG_NAME, org.info.name)
                         .setString(OrganizationRepository.ORG_ADDRESS, org.info.address)
                         .setString(OrganizationRepository.ORG_PHONE_NUMBER, org.info.phoneNumber);
-                    OrganizationRepository.LOGGER.debug("Prepared bound statement: " + boundStatement);
+                    OrganizationRepository.LOGGER.debug("Prepared bound statement: " + boundStatement.preparedStatement().getQueryString());
                     return boundStatement;
                 }
             ).thenApply(this.session::executeWrite)

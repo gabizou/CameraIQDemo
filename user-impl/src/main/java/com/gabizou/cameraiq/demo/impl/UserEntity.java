@@ -1,5 +1,6 @@
 package com.gabizou.cameraiq.demo.impl;
 
+import akka.Done;
 import com.gabizou.cameraiq.demo.api.UserId;
 import com.gabizou.cameraiq.demo.impl.events.UserEvent;
 import com.lightbend.lagom.javadsl.persistence.PersistentEntity;
@@ -45,7 +46,7 @@ public final class UserEntity extends PersistentEntity<UserCommand, UserEvent, U
                 ctx.invalidCommand("User " + cmd.uuid + " does not " + "exist");
             }
             UserEntity.LOGGER.debug("Fetching registered user " + userId);
-
+            ctx.reply(Done.getInstance());
         });
         return behavior.build();
     }
