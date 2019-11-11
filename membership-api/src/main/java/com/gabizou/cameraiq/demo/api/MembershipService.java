@@ -75,7 +75,7 @@ public interface MembershipService extends Service {
                 Service.restCall(Method.POST, "/api/organization/:organizationName/members", this::addMember),
                 Service.restCall(Method.DELETE, "/api/organization/:organizationName/members", this::removeMember),
                 Service.restCall(Method.GET, "/api/user/:id/memberships", this::getOrganizations),
-                Service.restCall(Method.DELETE, "/api/user/:id/", this::pruneAllMembershipsFor),
+                Service.restCall(Method.DELETE, "/api/user/:id/memberships", this::pruneAllMembershipsFor),
                 Service.restCall(Method.POST, "/api/organization/:organizationName/member", this::getMembership)
             )
             .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
