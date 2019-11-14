@@ -59,6 +59,11 @@
             <artifactId>lagom-javadsl-persistence-cassandra_${scala.binary.version}</artifactId>
             <version>${lagom.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.taymyr.lagom</groupId>
+            <artifactId>lagom-openapi-java-impl_${scala.binary.version}</artifactId>
+            <version>${lagom.openapi.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -15,7 +15,7 @@ public class UserId implements Jsonable {
     public final UUID uuid;
 
     @JsonCreator
-    public UserId(@JsonProperty("userId") final UUID uuid) {
+    public UserId(final UUID uuid) {
         this.uuid = uuid;
     }
 

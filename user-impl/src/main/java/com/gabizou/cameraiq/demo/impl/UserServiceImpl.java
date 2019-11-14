@@ -15,13 +15,14 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
+import org.taymyr.lagom.javadsl.openapi.AbstractOpenAPIService;
 
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl extends AbstractOpenAPIService implements UserService {
 
     private static final String ENTITY_KEY = UserServiceImpl.class.getName();
     private final PersistentEntityRegistry registry;
