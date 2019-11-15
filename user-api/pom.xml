@@ -27,11 +27,7 @@
             <groupId>com.lightbend.lagom</groupId>
             <artifactId>lagom-javadsl-jackson_2.12</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.taymyr.lagom</groupId>
-            <artifactId>lagom-openapi-java-api_${scala.binary.version}</artifactId>
-            <version>${lagom.openapi.version}</version>
-        </dependency>
+
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>

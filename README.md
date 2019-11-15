@@ -21,6 +21,7 @@ following operations:
 
 ### To Run This Locally
 
+1) Ensure you have a variant of JDK 8 (Lagom 1.5 is not compatible with J9+, Lagom 1.6 is in release candidacy)
 1) Clone the repo
 2) Run `mvn lagom:runAll`
 3) In a separate command session (lagom's maven command keeps the services running until `<RETURN>` is entered): `cd ./scripts`

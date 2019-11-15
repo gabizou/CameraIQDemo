@@ -94,7 +94,7 @@
 
         <scala.binary.version>2.12</scala.binary.version>
 
-        <lagom.version>1.5.4</lagom.version>
+        <lagom.version>1.6.0-RC2</lagom.version>
         <lagom.openapi.version>1.0.0</lagom.openapi.version>
     </properties>
 </project>

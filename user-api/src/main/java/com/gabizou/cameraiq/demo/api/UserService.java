@@ -21,10 +21,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.pcollections.POrderedSet;
-import org.taymyr.lagom.javadsl.openapi.OpenAPIService;
 
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * The USer service interface.
@@ -53,7 +51,7 @@ import java.util.UUID;
         )
     }
 )
-public interface UserService extends OpenAPIService {
+public interface UserService extends Service {
 
     /**
      * Gets a single {@link User user} by {@link UserId uuid}.
@@ -140,7 +138,7 @@ public interface UserService extends OpenAPIService {
 
     @Override
     default Descriptor descriptor() {
-        return this.withOpenAPI(Service.named("users")
+        return Service.named("users")
             .withCalls(
                 Service.restCall(Method.POST, "/api/user/", this::createUser),
                 Service.restCall(Method.GET, "/api/user/:uuid", this::lookupUser),
@@ -148,7 +146,6 @@ public interface UserService extends OpenAPIService {
                 Service.restCall(Method.POST, "/api/user/", this::getUsersByIds)
             )
             .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
-            .withAutoAcl(true)
-        );
+            .withAutoAcl(true);
     }
 }
