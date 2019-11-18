@@ -17,8 +17,9 @@ import com.lightbend.lagom.javadsl.persistence.ReadSide;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
+import org.taymyr.lagom.javadsl.openapi.AbstractOpenAPIService;
 
-public class MembershipServiceImpl implements MembershipService {
+public class MembershipServiceImpl extends AbstractOpenAPIService implements MembershipService {
 
     public static final String ENTITY_KEY = MembershipServiceImpl.class.getName();
     private final PersistentEntityRegistry registry;

@@ -13,10 +13,11 @@ import com.lightbend.lagom.javadsl.persistence.PersistentEntityRegistry;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.pcollections.POrderedSet;
+import org.taymyr.lagom.javadsl.openapi.AbstractOpenAPIService;
 
 import java.util.UUID;
 
-public class OrganizationServiceImpl implements OrganizationService {
+public class OrganizationServiceImpl extends AbstractOpenAPIService implements OrganizationService {
 
     public static final String ENTITY_KEY = OrganizationServiceImpl.class.getName();
     private static final Logger LOGGER = LogManager.getLogger(

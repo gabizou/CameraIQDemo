@@ -6,13 +6,52 @@ import com.lightbend.lagom.javadsl.api.Service;
 import com.lightbend.lagom.javadsl.api.ServiceCall;
 import com.lightbend.lagom.javadsl.api.deser.PathParamSerializers;
 import com.lightbend.lagom.javadsl.api.transport.Method;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.info.Contact;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.pcollections.OrderedPSet;
 import org.pcollections.POrderedSet;
 import org.pcollections.PSequence;
+import org.taymyr.lagom.javadsl.openapi.OpenAPIService;
 
 import java.util.UUID;
 
-public interface MembershipService extends Service {
+@OpenAPIDefinition(
+    info = @Info(
+        title = "MembershipService",
+        description = "A micro-service that manages memberships between Organizations and Users.",
+        contact = @Contact(
+            name = "Gabriel Harris-Rouquette",
+            url = "https://gabizou.com/",
+            email = "gabriel@gabizou.com"
+        ),
+        license = @License(
+            name = "CC0 - Public Domain Dedication",
+            url = "https://creativecommons.org/publicdomain/zero/1.0/"
+        )
+    ),
+    tags = {
+        @Tag(name = "organization",
+            description = "Organization related services"),
+        @Tag(name = "user",
+            description = "User related services"
+        ),
+        @Tag(name = "membership",
+            description = "Membesrhip related services"
+        )
+    }
+)
+public interface MembershipService extends OpenAPIService {
 
     /**
      * Adds the provided {@link User user} to the {@link Organization
@@ -22,6 +61,50 @@ public interface MembershipService extends Service {
      * @param organizationName The organization's name
      * @return The organization as a response
      */
+    @Operation(
+        method = "POST",
+        summary = "Submits a request to add the passed in UserId to the organization by name",
+        description = "With the UserId as request data, using the Organization by name included in the " +
+            "path call, will attempt to create a new Membership. The Membership is registered with the " +
+            "service as a UserId and OrganizationId coupling only.",
+        parameters = @Parameter(
+            name = "organizationName",
+            in = ParameterIn.PATH,
+            description = "The Organization by name in the path",
+            examples = @ExampleObject(
+                name = "ExampleCompany",
+                value = "ExampleCompany"
+            ),
+            required = true
+        ),
+        requestBody = @RequestBody(
+            description = "The UserId object, represented as a UUID string",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UserId.class),
+                examples = @ExampleObject(
+                    name = "John Doe's UserId",
+                    summary = "John Doe's user id, the UUID Type 5 based on their initial email",
+                    value = "\"3eda6d3a-54f3-59a3-8904-d5eabbccd1f2\""
+                )
+            ),
+            required = true
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "The created membership object",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = Membership.class)
+                )
+            ),
+            @ApiResponse(
+                responseCode = "400",
+                description = "No found organization"
+            )
+        }
+    )
     ServiceCall<UserId, Membership> addMember(String organizationName);
 
     /**
@@ -31,6 +114,38 @@ public interface MembershipService extends Service {
      * @param organizationName The organization's name
      * @return The membership as a response
      */
+    @Operation(
+        method = "GET",
+        summary = "Gets the Membership object for the Organization and User",
+        parameters = @Parameter(
+            in = ParameterIn.PATH,
+            name = "organizationName",
+            description = "The organization by name"
+        ),
+        requestBody = @RequestBody(
+            description = "The UserId requested for the membership",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = UserId.class),
+                examples = @ExampleObject(
+                    name = "John Doe's UserId",
+                    summary = "John Doe's user id, the UUID Type 5 based on their initial email",
+                    value = "\"3eda6d3a-54f3-59a3-8904-d5eabbccd1f2\""
+                )
+            )
+        ),
+        responses = @ApiResponse(
+            responseCode = "200",
+            description = "The found membership",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(
+                    implementation = Membership.class,
+                    description = "The found membership between the user and organization"
+                )
+            )
+        )
+    )
     ServiceCall<UserId, Membership> getMembership(final String organizationName);
 
     /**
@@ -69,7 +184,7 @@ public interface MembershipService extends Service {
 
     @Override
     default Descriptor descriptor() {
-        return Service.named("membership")
+        return this.withOpenAPI(Service.named("membership")
             .withCalls(
                 Service.restCall(Method.GET, "/api/organization/:organizationName/members", this::getMembers),
                 Service.restCall(Method.POST, "/api/organization/:organizationName/members", this::addMember),
@@ -80,7 +195,8 @@ public interface MembershipService extends Service {
             )
             .withPathParamSerializer(UserId.class, PathParamSerializers.required("UserId", UserId::fromString, UserId::toString))
             .withPathParamSerializer(OrganizationId.class, PathParamSerializers.required("OrganizationId", OrganizationId::fromString, OrganizationId::toString))
-            .withAutoAcl(true);
+            .withAutoAcl(true)
+        );
     }
 
 }

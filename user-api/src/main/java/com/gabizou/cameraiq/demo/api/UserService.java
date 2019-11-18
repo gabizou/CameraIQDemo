@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,7 +43,7 @@ import java.util.UUID;
             email = "gabriel@gabizou.com"
         ),
         license = @License(
-            name = "CC0",
+            name = "CC0 - Public Domain Dedication",
             url = "https://creativecommons.org/publicdomain/zero/1.0/"
         )
     ),
@@ -114,7 +115,20 @@ public interface UserService extends OpenAPIService {
                 )
             ),
             required = true
-        )
+        ),
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "The created user with appropriate User ID",
+                content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(
+                        implementation = User.class,
+                        description = "The created user. The user's UUID is permanently defined by their email, and now the email can be changed without changing the User's UUID."
+                    )
+                )
+            )
+        }
     )
     ServiceCall<UserRegistration, User> createUser();
 
@@ -125,7 +139,20 @@ public interface UserService extends OpenAPIService {
      */
     @Operation(
         method = "GET",
-        summary = "Gets all users "
+        summary = "Gets all users registered with this service",
+        responses = {
+            @ApiResponse(
+                responseCode = "200",
+                description = "The ordered set of Users",
+                content = @Content(
+                    mediaType = "application/json",
+                    array = @ArraySchema(
+                        schema = @Schema(implementation = User.class)
+                    )
+                )
+
+            )
+        }
     )
     ServiceCall<NotUsed, POrderedSet<User>> getUsers();
 
@@ -136,11 +163,37 @@ public interface UserService extends OpenAPIService {
      *
      * @return
      */
+    @Operation(
+        method = "POST",
+        summary = "Gets all users by the provided UserId objects",
+        requestBody = @RequestBody(
+            description = "The set of UserId's comprised of UUID strings",
+            content = @Content(
+                array = @ArraySchema(
+                    schema = @Schema(
+                        implementation = UserId.class,
+                        description = "The User's UUID being requested"
+                    )
+                )
+
+            )
+        ),
+        responses = @ApiResponse(
+            description = "A Pair of collections where the left is a set of found users, and the right is an array of error responses for unfound UserId's",
+            content = @Content(
+                schema = @Schema(
+                    implementation = Pair.class,
+                    description = "The pair is explicitly nested of a set of found users, and a set of error responses for user id's not found"
+                )
+            )
+        )
+
+    )
     ServiceCall<Set<UserId>, Pair<POrderedSet<User>, Set<String>>> getUsersByIds();
 
     @Override
     default Descriptor descriptor() {
-        return this.withOpenAPI(Service.named("users")
+        return this.withOpenAPI(Service.named("user")
             .withCalls(
                 Service.restCall(Method.POST, "/api/user/", this::createUser),
                 Service.restCall(Method.GET, "/api/user/:uuid", this::lookupUser),
