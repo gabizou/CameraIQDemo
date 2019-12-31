@@ -1,8 +1,5 @@
 package com.gabizou.cameraiq.demo.util;
 
-import akka.japi.Pair;
-import org.pcollections.OrderedPSet;
-import org.pcollections.POrderedSet;
 
 import java.util.ArrayList;
 import java.util.Collection;

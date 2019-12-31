@@ -38,30 +38,6 @@ public class UserServiceImpl extends AbstractOpenAPIService implements UserServi
     }
 
     @Override
-    public ServiceCall<NotUsed, User> lookupUser(UserId uuid) {
-        return request -> this.getUserRef()
-            .ask(new UserCommand.GetUser(uuid))
-            .thenComposeAsync(done -> {
-                UserServiceImpl.LOGGER.info("Looking up user " + uuid);
-                return this.repo.lookupUser(uuid);
-            });
-    }
-
-    @Override
-    public ServiceCall<UserRegistration, User> createUser() {
-        return registrationInfo -> {
-            final UUID uuid = UUIDType5.nameUUIDFromNamespaceAndString(UUIDType5.NAMESPACE_OID, registrationInfo.email);
-            final User newUser = new User(new UserId(uuid), registrationInfo);
-            UserServiceImpl.LOGGER.info("Creating new user " + newUser);
-
-            return this.repo.saveUser(newUser)
-                .thenComposeAsync(saved -> this.getUserRef()
-                    .ask(new UserCommand.CreateUser(saved))
-                );
-        };
-    }
-
-    @Override
     public ServiceCall<NotUsed, POrderedSet<User>> getUsers() {
         return none -> this.repo.getUsers();
     }
